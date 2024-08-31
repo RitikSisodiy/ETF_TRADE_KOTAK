@@ -3,7 +3,7 @@ import subprocess
 import os
 
 # Define the path to your Git repository
-REPO_PATH = ''  # Update this to your repository path
+REPO_PATH = './'  # Update this to your repository path
 
 
 class GitWebhookHandler(BaseHTTPRequestHandler):

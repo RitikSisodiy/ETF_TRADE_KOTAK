@@ -4,5 +4,3 @@
 venv/*
 logs/
 **/*.log
-*.log
-/logs/

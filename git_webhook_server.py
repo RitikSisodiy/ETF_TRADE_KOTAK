@@ -22,7 +22,7 @@ class RestartHandler(FileSystemEventHandler):
 
 def restart_server():
     global process
-    if process:
+    if process is not None:
         process.terminate()
         process.wait()
     process = subprocess.Popen([sys.executable, SCRIPT_PATH])

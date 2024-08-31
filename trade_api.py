@@ -3,7 +3,9 @@ from dotenv import load_dotenv
 load_dotenv()
 import pdb
 import os
+import time
 import pickle
+from plyer import notification
 
 class NeoClientManager:
     def __init__(self):
@@ -99,6 +101,12 @@ class NeoClientManager:
     def notify(self, message):
         # Simple notification mechanism (can be replaced with actual notifications)
         print(f"Notification: {message}")
+        notification.notify(
+            title='Kotak Neo',
+            message=message,
+            app_icon='icon.ico',
+            timeout=10,
+        )
 
 if __name__ == "__main__":
     price = 75

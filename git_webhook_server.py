@@ -21,7 +21,7 @@ class RestartHandler(FileSystemEventHandler):
             install_requirements()
 
 def restart_server():
-    global process
+    global process  # Declare the global variable
     if process is not None:
         process.terminate()
         process.wait()
@@ -31,7 +31,7 @@ def install_requirements():
     subprocess.run([sys.executable, '-m', 'pip', 'install', '-r', REQUIREMENTS_PATH], check=True)
 
 if __name__ == "__main__":
-    global process
+    global process  # Declare the global variable
     process = subprocess.Popen([sys.executable, SCRIPT_PATH])
 
     event_handler = RestartHandler()

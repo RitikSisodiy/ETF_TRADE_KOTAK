@@ -25,7 +25,6 @@ def restart_server():
     if process:
         process.terminate()
         process.wait()
-    global process
     process = subprocess.Popen([sys.executable, SCRIPT_PATH])
 
 def install_requirements():

@@ -8,6 +8,9 @@ from watchdog.events import FileSystemEventHandler
 SCRIPT_PATH = 'git_webhook_server.py'
 REQUIREMENTS_PATH = 'requirements.txt'
 
+# Initialize the process variable
+process = None
+
 class RestartHandler(FileSystemEventHandler):
     def on_modified(self, event):
         if event.src_path == os.path.abspath(SCRIPT_PATH):

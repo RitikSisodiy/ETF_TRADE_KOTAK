@@ -1,4 +1,4 @@
 git+https://github.com/Kotak-Neo/kotak-neo-api.git#egg=neo_api_client
 yfinance==0.2.41
 tqdm==4.66.5
-plyer
+plyer==2.1.0

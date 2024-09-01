@@ -30,7 +30,7 @@ class NeoClientManager:
                     return False
                 elif latest_history["ordSt"]=="complete":
                     return True
-                notify.notify(f"current order status for {order_id} is:", latest_history["ordSt"],end="\r")                
+                notify.notify(f"current order status for {order_id} is:", latest_history["ordSt"],end="\r",update=False)                
                 time.sleep(10)
             else:
                 return False

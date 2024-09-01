@@ -19,7 +19,7 @@ def fetch_data(etf_list, start_date, end_date):
         data[etf] = yf.download(etf, start=start_date, end=end_date, progress=False)
         count +=1
         progress_percentage = count / total * 100
-        notify.notify(f"Progress: {progress_percentage:.2f}% | {count} of {total}", end='\r')
+        notify.notify(f"Progress: {progress_percentage:.2f}% | {count} of {total}", end='\r',update=False,print_txt=False)
     return data
 
 # Function to calculate the 20-day moving average and percentage drop

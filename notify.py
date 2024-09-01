@@ -6,10 +6,10 @@ class Notification:
     def __init__(self):
         self.content = ""
         self.id = random.randint(0,100000)
-    def notify(self, *args,update=True, **kwargs):
+    def notify(self, *args,update=True,print_txt=True, **kwargs):
         # Simple notification mechanism (can be replaced with actual notifications)
         message = "".join([str(arg) for arg in args])
-        print(f"Notification: {message}",**kwargs)
+        print_txt and print(f"Notification: {message}",**kwargs)
         self.send_notification(
             title='Kotak Neo',
             content=message,
@@ -25,13 +25,13 @@ class Notification:
         n_content += "\n" + content
         if update:
             self.content = n_content
-
         command = [
             "termux-notification",
             "--title", title,
             "--content", n_content,
             "--image-path", image_path,
-            "--id", str(self.id)
+            "--id", str(self.id),
+            "--alert-once"
         ]
         
         # Execute the command asynchronously

@@ -26,7 +26,7 @@ class NeoClientManager:
             history = self.client.order_history(order_id= order_id)['data']
             if history["stat"]=='Ok':
                 latest_history = history["data"][0]
-                notify.notify(f"current order status for {order_id} is:", latest_history["ordSt"],end="\r",update=False)                
+                notify.notify(f"current order status for {order_id} is {latest_history['ordSt']}, \n {latest_history['rejRsn']}",end="\r",update=False)                
                 if latest_history["ordSt"]=="rejected":
                     return False
                 elif latest_history["ordSt"]=="complete":

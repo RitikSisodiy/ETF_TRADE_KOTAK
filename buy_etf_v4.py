@@ -6,7 +6,7 @@ from tqdm import tqdm
 import os
 import json
 from trade_api import NeoClientManager
-
+from notify import notify
 # File to persist accumulated investment
 accumulated_investment_file = "accumulated_investment.json"
 
@@ -96,7 +96,7 @@ def main():
         investment_amount = num_shares * current_price
         etf = etf.split(".")[0]
         if num_shares > 0:
-            print(f"ETF to Buy: {etf}, Percentage Drop: {percentage_drop:.2f}%, Shares: {num_shares}, Investment: {investment_amount:.2f}")
+            notify.notify(f"ETF to Buy: {etf}, Percentage Drop: {percentage_drop:.2f}%, Shares: {num_shares}, Investment: {investment_amount:.2f}")
             client= NeoClientManager()
             order_success,order = client.place_order(etf,current_price,num_shares)
             if order_success:
@@ -104,10 +104,10 @@ def main():
                 log_buy_history(etf, percentage_drop, investment_amount, num_shares, last_investments)
                 accumulated_investment = daily_investment_amount
         else:
-            print(f"Not enough funds to buy at least one share of {etf}. Accumulating funds for the next day.")
+            notify.notify(f"Not enough funds to buy at least one share of {etf}. Accumulating funds for the next day.")
             accumulated_investment += daily_investment_amount
     else:
-        print("No suitable ETF to buy today. Accumulating funds for the next day.")
+        notify.notify("No suitable ETF to buy today. Accumulating funds for the next day.")
         accumulated_investment += daily_investment_amount
     
     save_accumulated_investment(accumulated_investment)

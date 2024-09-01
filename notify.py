@@ -1,7 +1,9 @@
 import os
+import random
 class Notification:
     def __init__(self):
         self.content = ""
+        self.id = random.randint(0,100000)
     def notify(self, *args,update=True, **kwargs):
         # Simple notification mechanism (can be replaced with actual notifications)
         message = "".join([str(arg) for arg in args])

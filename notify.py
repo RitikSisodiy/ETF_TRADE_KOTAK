@@ -1,5 +1,7 @@
 import os
+import subprocess
 import random
+
 class Notification:
     def __init__(self):
         self.content = ""
@@ -15,15 +17,23 @@ class Notification:
             update=update
         )
     
-    def send_notification(self,title, content, image_path,id=100,update=True):
+    
+    def send_notification(self, title, content, image_path, update=True):
         # Construct the termux-notification command
         image_path = os.path.abspath(image_path)
         n_content = self.content
         n_content += "\n" + content
         if update:
             self.content = n_content
-        command = f"termux-notification --title '{title}' --content '{n_content}' --image-path {image_path} --id {id}"
+
+        command = [
+            "termux-notification",
+            "--title", title,
+            "--content", n_content,
+            "--image-path", image_path,
+            "--id", str(self.id)
+        ]
         
-        # Execute the command
-        os.system(command)
+        # Execute the command asynchronously
+        subprocess.Popen(command)
 notify = Notification()

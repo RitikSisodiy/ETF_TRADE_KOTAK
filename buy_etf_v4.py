@@ -13,8 +13,13 @@ accumulated_investment_file = "accumulated_investment.json"
 # Function to fetch historical data
 def fetch_data(etf_list, start_date, end_date):
     data = {}
+    total = len(etf_list)
+    count = 0
     for etf in tqdm(etf_list):
         data[etf] = yf.download(etf, start=start_date, end=end_date, progress=False)
+        count +=1
+        progress_percentage = count / total * 100
+        notify.notify(f"Progress: {progress_percentage:.2f}% | {count} of {total}", end='\r')
     return data
 
 # Function to calculate the 20-day moving average and percentage drop

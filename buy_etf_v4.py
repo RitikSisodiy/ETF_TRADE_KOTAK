@@ -1,5 +1,4 @@
 import pandas as pd
-import pdb
 import yfinance as yf
 from datetime import datetime, timedelta
 from tqdm import tqdm
@@ -9,6 +8,9 @@ from trade_api import NeoClientManager
 from notify import notify
 # File to persist accumulated investment
 accumulated_investment_file = "accumulated_investment.json"
+# File to persist last investments
+last_investments_file = "last_investments.json"
+
 
 # Function to fetch historical data
 def fetch_data(etf_list, start_date, end_date):
@@ -22,7 +24,21 @@ def fetch_data(etf_list, start_date, end_date):
         notify.notify(f"Progress: {progress_percentage:.2f}% | {count} of {total}", end='\r',update=False,print_txt=False)
     return data
 
-# Function to calculate the 20-day moving average and percentage drop
+
+def load_last_investments():
+    if os.path.exists(last_investments_file):
+        with open(last_investments_file, 'r') as f:
+            return json.load(f)
+    return {}
+
+
+# Function to save last investments to a file
+def save_last_investments(last_investments):
+    with open(last_investments_file, 'w') as f:
+        json.dump(last_investments, f, default=str)
+    # Function to calculate the 20-day moving average and percentage drop
+
+
 def calculate_metrics(data):
     results = {}
     for etf, df in data.items():
@@ -60,8 +76,10 @@ def log_buy_history(etf, percentage_drop, investment_amount, num_shares, last_in
     
     with open(buy_history_file, 'a') as f:
         f.write(f"{current_date},{etf},{percentage_drop:.2f},{investment_amount:.2f},{num_shares}\n")
-    
-    last_investments[etf] = (datetime.today(), percentage_drop)
+
+    last_investments[etf] = (datetime.today().strftime('%Y-%m-%d'), percentage_drop)
+    save_last_investments(last_investments)
+
 
 # Function to load accumulated investment from a file
 def load_accumulated_investment():
@@ -76,17 +94,52 @@ def save_accumulated_investment(amount):
     with open(accumulated_investment_file, 'w') as f:
         json.dump({'accumulated_investment': amount}, f)
 
+
+def convert_dates(data):
+    for key in data:
+        date_str, drop = data[key]
+        data[key] = (datetime.strptime(date_str, '%Y-%m-%d'), drop)
+    return data
+
+
+def load_last_investments():
+    if os.path.exists(last_investments_file):
+        with open(last_investments_file, 'r') as f:
+            data = json.load(f)
+            return convert_dates(data)
+    return {}
+
+
 # Example workflow
 def main():
-    etf_list = ["ABSLBANETF.NS", "ABSLNN50ET.NS", "ALPHA.NS", "ALPHAETF.NS", "ALPL30IETF.NS", "AUTOBEES.NS", "AUTOIETF.NS", "AXISGOLD.NS", "AXISILVER.NS", "AXISNIFTY.NS", "AXISTECETF.NS", "BANKBEES.NS", "BANKBETF.NS", "BANKIETF.NS", "BANKNIFTY1.NS", "BFSI.NS", "BSE500IETF.NS", "BSLGOLDETF.NS", "BSLNIFTY.NS", "COMMOIETF.NS", "CONSUMBEES.NS", "CONSUMIETF.NS", "CPSEETF.NS", "DIVOPPBEES.NS", "EQUAL50ADD.NS", "FINIETF.NS", "FMCGIETF.NS", "GOLDBEES.NS", "GOLDCASE.NS", "GOLDETF.NS", "GOLDETFADD.NS", "GOLDIETF.NS", "GOLDSHARE.NS", "HDFCBSE500.NS", "HDFCGOLD.NS", "HDFCLOWVOL.NS", "HDFCMID150.NS", "HDFCMOMENT.NS", "HDFCNEXT50.NS", "HDFCNIF100.NS", "HDFCNIFBAN.NS", "HDFCNIFIT.NS", "HDFCNIFTY.NS", "HDFCPSUBK.NS", "HDFCPVTBAN.NS", "HDFCSENSEX.NS", "HDFCSILVER.NS", "HDFCSML250.NS", "HEALTHIETF.NS", "HEALTHY.NS", "HNGSNGBEES.NS", "ICICIB22.NS", "INFRABEES.NS", "INFRAIETF.NS", "IT.NS", "ITBEES.NS", "ITETF.NS", "ITETFADD.NS", "ITIETF.NS", "JUNIORBEES.NS", "KOTAKGOLD.NS", "KOTAKSILVE.NS", "LOWVOLIETF.NS", "MAFANG.NS", "MAHKTECH.NS", "MAKEINDIA.NS", "MASPTOP50.NS", "MID150BEES.NS", "MIDCAP.NS", "MIDCAPETF.NS", "MIDCAPIETF.NS", "MIDQ50ADD.NS", "MIDSELIETF.NS", "MNC.NS", "MOHEALTH.NS", "MOM100.NS", "MOM30IETF.NS", "MOMENTUM.NS", "MOMOMENTUM.NS", "MON100.NS", "MONIFTY500.NS", "MONQ50.NS", "MOREALTY.NS", "MOSMALL250.NS", "MOVALUE.NS", "NEXT50IETF.NS", "NIF100BEES.NS", "NIF100IETF.NS", "NIFITETF.NS", "NIFMID150.NS", "NIFTY1.NS", "NIFTY50ADD.NS", "NIFTYBEES.NS", "NIFTYETF.NS", "NIFTYIETF.NS", "NIFTYQLITY.NS", "NV20.NS", "NV20BEES.NS", "NV20IETF.NS", "PHARMABEES.NS", "PSUBANK.NS", "PSUBNKBEES.NS", "PSUBNKIETF.NS", "PVTBANIETF.NS", "PVTBANKADD.NS", "QGOLDHALF.NS", "SBIETFCON.NS", "SBIETFIT.NS", "SBIETFPB.NS", "SENSEXETF.NS", "SETFGOLD.NS", "SETFNIF50.NS", "SETFNIFBK.NS", "SETFNN50.NS", "SILVER.NS", "SILVERADD.NS", "SILVERBEES.NS", "SILVERETF.NS", "SILVERIETF.NS", "SILVRETF.NS", "SMALLCAP.NS", "TATAGOLD.NS", "TATSILV.NS", "TECH.NS", "TNIDETF.NS", "UTIBANKETF.NS", "UTINEXT50.NS", "UTINIFTETF.NS", "UTISENSETF.NS"]
+    etf_list = ["ABSLBANETF.NS", "ABSLNN50ET.NS", "ALPHA.NS", "ALPHAETF.NS", "ALPL30IETF.NS", "AUTOBEES.NS",
+                "AUTOIETF.NS", "AXISGOLD.NS", "AXISILVER.NS", "AXISNIFTY.NS", "AXISTECETF.NS", "BANKBEES.NS",
+                "BANKBETF.NS", "BANKIETF.NS", "BANKNIFTY1.NS", "BFSI.NS", "BSE500IETF.NS", "BSLGOLDETF.NS",
+                "BSLNIFTY.NS", "COMMOIETF.NS", "CONSUMBEES.NS", "CONSUMIETF.NS", "CPSEETF.NS", "DIVOPPBEES.NS",
+                "EQUAL50ADD.NS", "FINIETF.NS", "FMCGIETF.NS", "GOLDBEES.NS", "GOLDCASE.NS", "GOLDETF.NS",
+                "GOLDETFADD.NS", "GOLDIETF.NS", "GOLDSHARE.NS", "HDFCBSE500.NS", "HDFCGOLD.NS", "HDFCLOWVOL.NS",
+                "HDFCMID150.NS", "HDFCMOMENT.NS", "HDFCNEXT50.NS", "HDFCNIF100.NS", "HDFCNIFBAN.NS", "HDFCNIFIT.NS",
+                "HDFCNIFTY.NS", "HDFCPSUBK.NS", "HDFCPVTBAN.NS", "HDFCSENSEX.NS", "HDFCSILVER.NS", "HDFCSML250.NS",
+                "HEALTHIETF.NS", "HEALTHY.NS", "HNGSNGBEES.NS", "ICICIB22.NS", "INFRABEES.NS", "INFRAIETF.NS", "IT.NS",
+                "ITBEES.NS", "ITETF.NS", "ITETFADD.NS", "ITIETF.NS", "JUNIORBEES.NS", "KOTAKGOLD.NS", "KOTAKSILVE.NS",
+                "LOWVOLIETF.NS", "MAFANG.NS", "MAHKTECH.NS", "MAKEINDIA.NS", "MASPTOP50.NS", "MID150BEES.NS",
+                "MIDCAP.NS", "MIDCAPETF.NS", "MIDCAPIETF.NS", "MIDQ50ADD.NS", "MIDSELIETF.NS", "MNC.NS", "MOHEALTH.NS",
+                "MOM100.NS", "MOM30IETF.NS", "MOMENTUM.NS", "MOMOMENTUM.NS", "MON100.NS", "MONIFTY500.NS", "MONQ50.NS",
+                "MOREALTY.NS", "MOSMALL250.NS", "MOVALUE.NS", "NEXT50IETF.NS", "NIF100BEES.NS", "NIF100IETF.NS",
+                "NIFITETF.NS", "NIFMID150.NS", "NIFTY1.NS", "NIFTY50ADD.NS", "NIFTYBEES.NS", "NIFTYETF.NS",
+                "NIFTYIETF.NS", "NIFTYQLITY.NS", "NV20.NS", "NV20BEES.NS", "NV20IETF.NS", "PHARMABEES.NS", "PSUBANK.NS",
+                "PSUBNKBEES.NS", "PSUBNKIETF.NS", "PVTBANIETF.NS", "PVTBANKADD.NS", "QGOLDHALF.NS", "SBIETFCON.NS",
+                "SBIETFIT.NS", "SBIETFPB.NS", "SENSEXETF.NS", "SETFGOLD.NS", "SETFNIF50.NS", "SETFNIFBK.NS",
+                "SETFNN50.NS", "SILVER.NS", "SILVERADD.NS", "SILVERBEES.NS", "SILVERETF.NS", "SILVERIETF.NS",
+                "SILVRETF.NS", "SMALLCAP.NS", "TATAGOLD.NS", "TATSILV.NS", "TECH.NS", "TNIDETF.NS", "UTIBANKETF.NS",
+                "UTINEXT50.NS", "UTINIFTETF.NS", "UTISENSETF.NS"]
     end_date = (datetime.today() + timedelta(days=1)).strftime('%Y-%m-%d')
     start_date = (datetime.today() - timedelta(days=60)).strftime('%Y-%m-%d')
     
     daily_investment_amount = 1000
 
     accumulated_investment = load_accumulated_investment() or daily_investment_amount
-    
-    last_investments = {}
+    last_investments = load_last_investments()
 
     data = fetch_data(etf_list, start_date, end_date)
     

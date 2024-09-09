@@ -35,12 +35,11 @@ def load_last_investments():
 # Function to save last investments to a file
 def save_last_investments(last_investments):
     last_investments_data = last_investments.copy()
-    for data in last_investments_data:
-        for key in data:
-            date,drop = data[key]
-            data[key] = date.strftime('%Y-%m-%d'),drop
+    for key in last_investments_data:
+        date,drop = last_investments_data[key]
+        last_investments_data[key] = date.strftime('%Y-%m-%d'),drop
     with open(last_investments_file, 'w') as f:
-        json.dump(last_investments, f, default=str)
+        json.dump(last_investments_data, f, default=str)
     # Function to calculate the 20-day moving average and percentage drop
 
 

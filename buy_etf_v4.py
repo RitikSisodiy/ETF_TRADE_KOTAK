@@ -58,6 +58,7 @@ def get_etf_to_buy(metrics, last_investments, min_drop=2, additional_drop=2.5):
         last_investment_date, last_investment_drop = last_investments.get(etf, (None, None))
         if last_investment_date:
             days_since_last_investment = (datetime.today() - last_investment_date).days
+            
             if days_since_last_investment <= 5 and additional_drop <= (last_investment_drop - percentage_drop):
                 continue
         if percentage_drop <= -min_drop:
